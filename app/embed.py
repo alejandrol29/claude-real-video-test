@@ -147,6 +147,141 @@ def build_metadata(
     return metadata
 
 
+def index_segments(
+    segments_path: Path,
+    chroma_path: Path,
+    video_id: str,
+    video_path: str = "",
+    model_name: str = DEFAULT_MODEL,
+    collection_name: str = DEFAULT_COLLECTION,
+    batch_size: int = 32,
+    replace: bool = False,
+) -> dict[str, Any]:
+    """Embed a segment JSON file and upsert it into ChromaDB."""
+    segments_path = Path(segments_path)
+    chroma_path = Path(chroma_path)
+
+    if batch_size <= 0:
+        raise ValueError("--batch-size debe ser mayor que cero.")
+
+    print("=" * 64)
+    print("INDEXACIÓN DE SEGMENTOS")
+    print("=" * 64)
+    print(f"Segmentos     : {segments_path}")
+    print(f"ChromaDB      : {chroma_path}")
+    print(f"Video ID      : {video_id}")
+    print(f"Video         : {video_path or '(no informado)'}")
+    print(f"Modelo        : {model_name}")
+    print(f"Colección     : {collection_name}")
+    print(f"Batch size    : {batch_size}")
+    print()
+
+    load_start = time.perf_counter()
+    segments = load_segments(segments_path)
+    load_time = time.perf_counter() - load_start
+    texts = [segment["text"].strip() for segment in segments]
+    type_counts: dict[str, int] = {}
+
+    for segment in segments:
+        segment_type = str(segment.get("type", "unknown"))
+        type_counts[segment_type] = type_counts.get(segment_type, 0) + 1
+
+    print(f"Segmentos válidos: {len(segments)}")
+    print(f"Tipos encontrados: {type_counts}")
+    print(f"Lectura JSON      : {load_time:.3f} s")
+    print()
+    print("Cargando modelo de embeddings...")
+    model_load_start = time.perf_counter()
+    embedding_model = SentenceTransformer(model_name)
+    model_load_time = time.perf_counter() - model_load_start
+    print(f"Modelo cargado en : {model_load_time:.3f} s")
+    print()
+    print("Generando embeddings...")
+    embedding_start = time.perf_counter()
+    embeddings = embedding_model.encode(
+        texts,
+        batch_size=batch_size,
+        show_progress_bar=True,
+        normalize_embeddings=True,
+        convert_to_numpy=True,
+    )
+    embedding_time = time.perf_counter() - embedding_start
+    print(f"Embeddings         : {len(embeddings)}")
+    print(f"Dimensiones        : {embeddings.shape[1]}")
+    print(f"Tiempo embeddings  : {embedding_time:.3f} s")
+    print()
+    print("Abriendo ChromaDB...")
+    chroma_path.mkdir(parents=True, exist_ok=True)
+    client = chromadb.PersistentClient(path=str(chroma_path))
+
+    if replace:
+        try:
+            client.delete_collection(collection_name)
+            print(f"Colección eliminada: {collection_name}")
+        except Exception:
+            pass
+
+    collection = client.get_or_create_collection(
+        name=collection_name,
+        metadata={
+            "hnsw:space": "cosine",
+            "embedding_model": model_name,
+            "video_id": video_id,
+        },
+    )
+    ids = []
+    metadatas = []
+
+    for position, segment in enumerate(segments):
+        ids.append(build_document_id(segment, video_id, position))
+        metadatas.append(
+            build_metadata(
+                segment,
+                video_id,
+                video_path,
+                str(segments_path),
+                position,
+            )
+        )
+
+    print("Indexando en ChromaDB...")
+    indexing_start = time.perf_counter()
+    collection.upsert(
+        ids=ids,
+        documents=texts,
+        embeddings=embeddings.tolist(),
+        metadatas=metadatas,
+    )
+    indexing_time = time.perf_counter() - indexing_start
+    total_time = load_time + model_load_time + embedding_time + indexing_time
+    result = {
+        "segments_indexed": len(segments),
+        "type_counts": type_counts,
+        "dimensions": embeddings.shape[1],
+        "load_time": load_time,
+        "model_load_time": model_load_time,
+        "embedding_time": embedding_time,
+        "indexing_time": indexing_time,
+        "total_time": total_time,
+    }
+
+    print()
+    print("=" * 64)
+    print("RESULTADOS DE INDEXACIÓN")
+    print("=" * 64)
+    print(f"Segmentos indexados : {len(segments)}")
+    print(f"Tipos               : {type_counts}")
+    print(f"Dimensiones         : {embeddings.shape[1]}")
+    print(f"Carga del JSON      : {load_time:.3f} s")
+    print(f"Carga del modelo    : {model_load_time:.3f} s")
+    print(f"Generación embedding: {embedding_time:.3f} s")
+    print(f"Indexación Chroma   : {indexing_time:.3f} s")
+    print(f"Tiempo total        : {total_time:.3f} s")
+    print(f"Directorio Chroma   : {chroma_path}")
+    print(f"Colección           : {collection_name}")
+    return result
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description=(
@@ -206,144 +341,16 @@ def main() -> None:
 
     args = parser.parse_args()
 
-    if args.batch_size <= 0:
-        raise ValueError("--batch-size debe ser mayor que cero.")
-
-    segments_path = Path(args.segments)
-    chroma_path = Path(args.chroma)
-
-    print("=" * 64)
-    print("INDEXACIÓN DE SEGMENTOS")
-    print("=" * 64)
-    print(f"Segmentos     : {segments_path}")
-    print(f"ChromaDB      : {chroma_path}")
-    print(f"Video ID      : {args.video_id}")
-    print(f"Video         : {args.video_path or '(no informado)'}")
-    print(f"Modelo        : {args.model}")
-    print(f"Colección     : {args.collection}")
-    print(f"Batch size    : {args.batch_size}")
-    print()
-
-    load_start = time.perf_counter()
-    segments = load_segments(segments_path)
-    load_time = time.perf_counter() - load_start
-
-    texts = [segment["text"].strip() for segment in segments]
-
-    type_counts: dict[str, int] = {}
-
-    for segment in segments:
-        segment_type = str(segment.get("type", "unknown"))
-        type_counts[segment_type] = type_counts.get(segment_type, 0) + 1
-
-    print(f"Segmentos válidos: {len(segments)}")
-    print(f"Tipos encontrados: {type_counts}")
-    print(f"Lectura JSON      : {load_time:.3f} s")
-    print()
-
-    print("Cargando modelo de embeddings...")
-    model_load_start = time.perf_counter()
-
-    model = SentenceTransformer(args.model)
-
-    model_load_time = time.perf_counter() - model_load_start
-
-    print(f"Modelo cargado en : {model_load_time:.3f} s")
-    print()
-
-    print("Generando embeddings...")
-    embedding_start = time.perf_counter()
-
-    embeddings = model.encode(
-        texts,
+    index_segments(
+        segments_path=Path(args.segments),
+        chroma_path=Path(args.chroma),
+        video_id=args.video_id,
+        video_path=args.video_path,
+        model_name=args.model,
+        collection_name=args.collection,
         batch_size=args.batch_size,
-        show_progress_bar=True,
-        normalize_embeddings=True,
-        convert_to_numpy=True,
+        replace=args.replace,
     )
-
-    embedding_time = time.perf_counter() - embedding_start
-
-    print(f"Embeddings         : {len(embeddings)}")
-    print(f"Dimensiones        : {embeddings.shape[1]}")
-    print(f"Tiempo embeddings  : {embedding_time:.3f} s")
-    print()
-
-    print("Abriendo ChromaDB...")
-    chroma_path.mkdir(parents=True, exist_ok=True)
-
-    client = chromadb.PersistentClient(path=str(chroma_path))
-
-    if args.replace:
-        try:
-            client.delete_collection(args.collection)
-            print(f"Colección eliminada: {args.collection}")
-        except Exception:
-            pass
-
-    collection = client.get_or_create_collection(
-        name=args.collection,
-        metadata={
-            "hnsw:space": "cosine",
-            "embedding_model": args.model,
-            "video_id": args.video_id,
-        },
-    )
-
-    ids = []
-    metadatas = []
-
-    for position, segment in enumerate(segments):
-        ids.append(
-            build_document_id(
-                segment=segment,
-                video_id=args.video_id,
-                position=position,
-            )
-        )
-
-        metadatas.append(
-            build_metadata(
-                segment=segment,
-                video_id=args.video_id,
-                video_path=args.video_path,
-                segments_path=str(segments_path),
-                position=position,
-            )
-        )
-
-    print("Indexando en ChromaDB...")
-    indexing_start = time.perf_counter()
-
-    collection.upsert(
-        ids=ids,
-        documents=texts,
-        embeddings=embeddings.tolist(),
-        metadatas=metadatas,
-    )
-
-    indexing_time = time.perf_counter() - indexing_start
-    total_time = (
-        load_time
-        + model_load_time
-        + embedding_time
-        + indexing_time
-    )
-
-    print()
-    print("=" * 64)
-    print("RESULTADOS DE INDEXACIÓN")
-    print("=" * 64)
-    print(f"Segmentos indexados : {len(segments)}")
-    print(f"Tipos               : {type_counts}")
-    print(f"Dimensiones         : {embeddings.shape[1]}")
-    print(f"Carga del JSON      : {load_time:.3f} s")
-    print(f"Carga del modelo    : {model_load_time:.3f} s")
-    print(f"Generación embedding: {embedding_time:.3f} s")
-    print(f"Indexación Chroma   : {indexing_time:.3f} s")
-    print(f"Tiempo total        : {total_time:.3f} s")
-    print(f"Directorio Chroma   : {chroma_path}")
-    print(f"Colección           : {args.collection}")
 
 
 if __name__ == "__main__":
