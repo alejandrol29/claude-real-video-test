@@ -1,0 +1,872 @@
+{
+  "chroma_path": "data/chroma-benchmark-20min-siglip",
+  "queries_path": "evaluation/retrieval_queries.json",
+  "query_count": 9,
+  "model_load_seconds": 1.65,
+  "modes": {
+    "siglip": {
+      "precision_at_5": 0.2444,
+      "event_recall_at_5": 0.6667,
+      "mrr": 0.7778,
+      "average_search_seconds": 0.002,
+      "queries": [
+        {
+          "query": "persona sosteniendo un trofeo",
+          "events": [
+            [
+              745,
+              758
+            ],
+            [
+              800,
+              812
+            ],
+            [
+              961,
+              973
+            ],
+            [
+              1100,
+              1120
+            ]
+          ],
+          "hits": 2,
+          "precision_at_5": 0.4,
+          "event_recall_at_5": 0.5,
+          "reciprocal_rank": 1.0,
+          "result_timestamps": [
+            1116.0,
+            967.0,
+            1056.0,
+            1094.0,
+            984.0
+          ]
+        },
+        {
+          "query": "equipo levantando una copa grande",
+          "events": [
+            [
+              961,
+              973
+            ],
+            [
+              1100,
+              1120
+            ]
+          ],
+          "hits": 2,
+          "precision_at_5": 0.4,
+          "event_recall_at_5": 1.0,
+          "reciprocal_rank": 1.0,
+          "result_timestamps": [
+            1111.0,
+            1076.0,
+            1061.0,
+            984.0,
+            967.0
+          ]
+        },
+        {
+          "query": "bengalas rojas y humo en la tribuna",
+          "events": [
+            [
+              125,
+              160
+            ]
+          ],
+          "hits": 2,
+          "precision_at_5": 0.4,
+          "event_recall_at_5": 1.0,
+          "reciprocal_rank": 1.0,
+          "result_timestamps": [
+            131.0,
+            154.0,
+            188.0,
+            584.0,
+            114.0
+          ]
+        },
+        {
+          "query": "persona escribiendo sobre un papel",
+          "events": [
+            [
+              576,
+              592
+            ]
+          ],
+          "hits": 1,
+          "precision_at_5": 0.2,
+          "event_recall_at_5": 1.0,
+          "reciprocal_rank": 1.0,
+          "result_timestamps": [
+            584.0,
+            691.0,
+            149.0,
+            105.0,
+            136.0
+          ]
+        },
+        {
+          "query": "jugadores celebrando juntos en el campo",
+          "events": [
+            [
+              94,
+              105
+            ],
+            [
+              1100,
+              1120
+            ]
+          ],
+          "hits": 0,
+          "precision_at_5": 0.0,
+          "event_recall_at_5": 0.0,
+          "reciprocal_rank": 0.0,
+          "result_timestamps": [
+            904.0,
+            867.0,
+            944.0,
+            993.0,
+            984.0
+          ]
+        },
+        {
+          "query": "personas abrazándose en el campo",
+          "events": [
+            [
+              842,
+              855
+            ]
+          ],
+          "hits": 1,
+          "precision_at_5": 0.2,
+          "event_recall_at_5": 1.0,
+          "reciprocal_rank": 1.0,
+          "result_timestamps": [
+            848.0,
+            980.0,
+            989.0,
+            800.0,
+            1094.0
+          ]
+        },
+        {
+          "query": "equipo reunido en el podio de campeón",
+          "events": [
+            [
+              978,
+              990
+            ],
+            [
+              1100,
+              1120
+            ]
+          ],
+          "hits": 2,
+          "precision_at_5": 0.4,
+          "event_recall_at_5": 1.0,
+          "reciprocal_rank": 1.0,
+          "result_timestamps": [
+            984.0,
+            1061.0,
+            1111.0,
+            914.0,
+            1076.0
+          ]
+        },
+        {
+          "query": "dos presentadores sentados en un estudio de televisión",
+          "events": [
+            [
+              530,
+              592
+            ],
+            [
+              1118,
+              1130
+            ]
+          ],
+          "hits": 1,
+          "precision_at_5": 0.2,
+          "event_recall_at_5": 0.5,
+          "reciprocal_rank": 1.0,
+          "result_timestamps": [
+            1123.0,
+            691.0,
+            886.0,
+            452.0,
+            926.0
+          ]
+        },
+        {
+          "query": "tabla de posiciones en pantalla entre dos presentadores",
+          "events": [
+            [
+              214,
+              226
+            ]
+          ],
+          "hits": 0,
+          "precision_at_5": 0.0,
+          "event_recall_at_5": 0.0,
+          "reciprocal_rank": 0.0,
+          "result_timestamps": [
+            114.0,
+            698.0,
+            0.0,
+            687.0,
+            757.0
+          ]
+        }
+      ]
+    },
+    "siglip_qwen": {
+      "precision_at_5": 0.1556,
+      "event_recall_at_5": 0.4444,
+      "mrr": 0.2704,
+      "average_search_seconds": 0.0061,
+      "queries": [
+        {
+          "query": "persona sosteniendo un trofeo",
+          "events": [
+            [
+              745,
+              758
+            ],
+            [
+              800,
+              812
+            ],
+            [
+              961,
+              973
+            ],
+            [
+              1100,
+              1120
+            ]
+          ],
+          "hits": 2,
+          "precision_at_5": 0.4,
+          "event_recall_at_5": 0.5,
+          "reciprocal_rank": 0.3333333333333333,
+          "result_timestamps": [
+            1094.0,
+            914.0,
+            751.0,
+            1116.0,
+            664.0
+          ]
+        },
+        {
+          "query": "equipo levantando una copa grande",
+          "events": [
+            [
+              961,
+              973
+            ],
+            [
+              1100,
+              1120
+            ]
+          ],
+          "hits": 1,
+          "precision_at_5": 0.2,
+          "event_recall_at_5": 0.5,
+          "reciprocal_rank": 0.2,
+          "result_timestamps": [
+            1011.0,
+            998.0,
+            1094.0,
+            914.0,
+            1111.0
+          ]
+        },
+        {
+          "query": "bengalas rojas y humo en la tribuna",
+          "events": [
+            [
+              125,
+              160
+            ]
+          ],
+          "hits": 1,
+          "precision_at_5": 0.2,
+          "event_recall_at_5": 1.0,
+          "reciprocal_rank": 0.2,
+          "result_timestamps": [
+            333.0,
+            266.0,
+            0.0,
+            751.0,
+            131.0
+          ]
+        },
+        {
+          "query": "persona escribiendo sobre un papel",
+          "events": [
+            [
+              576,
+              592
+            ]
+          ],
+          "hits": 0,
+          "precision_at_5": 0.0,
+          "event_recall_at_5": 0.0,
+          "reciprocal_rank": 0.0,
+          "result_timestamps": [
+            658.0,
+            202.0,
+            266.0,
+            853.0,
+            1123.0
+          ]
+        },
+        {
+          "query": "jugadores celebrando juntos en el campo",
+          "events": [
+            [
+              94,
+              105
+            ],
+            [
+              1100,
+              1120
+            ]
+          ],
+          "hits": 0,
+          "precision_at_5": 0.0,
+          "event_recall_at_5": 0.0,
+          "reciprocal_rank": 0.0,
+          "result_timestamps": [
+            904.0,
+            944.0,
+            1088.0,
+            1011.0,
+            751.0
+          ]
+        },
+        {
+          "query": "personas abrazándose en el campo",
+          "events": [
+            [
+              842,
+              855
+            ]
+          ],
+          "hits": 1,
+          "precision_at_5": 0.2,
+          "event_recall_at_5": 1.0,
+          "reciprocal_rank": 0.5,
+          "result_timestamps": [
+            1094.0,
+            848.0,
+            904.0,
+            1011.0,
+            25.0
+          ]
+        },
+        {
+          "query": "equipo reunido en el podio de campeón",
+          "events": [
+            [
+              978,
+              990
+            ],
+            [
+              1100,
+              1120
+            ]
+          ],
+          "hits": 1,
+          "precision_at_5": 0.2,
+          "event_recall_at_5": 0.5,
+          "reciprocal_rank": 0.2,
+          "result_timestamps": [
+            1011.0,
+            914.0,
+            751.0,
+            1002.0,
+            984.0
+          ]
+        },
+        {
+          "query": "dos presentadores sentados en un estudio de televisión",
+          "events": [
+            [
+              530,
+              592
+            ],
+            [
+              1118,
+              1130
+            ]
+          ],
+          "hits": 1,
+          "precision_at_5": 0.2,
+          "event_recall_at_5": 0.5,
+          "reciprocal_rank": 1.0,
+          "result_timestamps": [
+            1123.0,
+            857.0,
+            220.0,
+            691.0,
+            25.0
+          ]
+        },
+        {
+          "query": "tabla de posiciones en pantalla entre dos presentadores",
+          "events": [
+            [
+              214,
+              226
+            ]
+          ],
+          "hits": 0,
+          "precision_at_5": 0.0,
+          "event_recall_at_5": 0.0,
+          "reciprocal_rank": 0.0,
+          "result_timestamps": [
+            757.0,
+            658.0,
+            0.0,
+            333.0,
+            857.0
+          ]
+        }
+      ]
+    },
+    "qwen": {
+      "precision_at_5": 0.0667,
+      "event_recall_at_5": 0.1944,
+      "mrr": 0.3333,
+      "average_search_seconds": 0.0015,
+      "queries": [
+        {
+          "query": "persona sosteniendo un trofeo",
+          "events": [
+            [
+              745,
+              758
+            ],
+            [
+              800,
+              812
+            ],
+            [
+              961,
+              973
+            ],
+            [
+              1100,
+              1120
+            ]
+          ],
+          "hits": 1,
+          "precision_at_5": 0.2,
+          "event_recall_at_5": 0.25,
+          "reciprocal_rank": 1.0,
+          "result_timestamps": [
+            751.0,
+            664.0,
+            197.0,
+            1011.0,
+            944.0
+          ]
+        },
+        {
+          "query": "equipo levantando una copa grande",
+          "events": [
+            [
+              961,
+              973
+            ],
+            [
+              1100,
+              1120
+            ]
+          ],
+          "hits": 0,
+          "precision_at_5": 0.0,
+          "event_recall_at_5": 0.0,
+          "reciprocal_rank": 0.0,
+          "result_timestamps": [
+            1011.0,
+            1002.0,
+            751.0,
+            664.0,
+            0.0
+          ]
+        },
+        {
+          "query": "bengalas rojas y humo en la tribuna",
+          "events": [
+            [
+              125,
+              160
+            ]
+          ],
+          "hits": 0,
+          "precision_at_5": 0.0,
+          "event_recall_at_5": 0.0,
+          "reciprocal_rank": 0.0,
+          "result_timestamps": [
+            751.0,
+            197.0,
+            1011.0,
+            664.0,
+            266.0
+          ]
+        },
+        {
+          "query": "persona escribiendo sobre un papel",
+          "events": [
+            [
+              576,
+              592
+            ]
+          ],
+          "hits": 0,
+          "precision_at_5": 0.0,
+          "event_recall_at_5": 0.0,
+          "reciprocal_rank": 0.0,
+          "result_timestamps": [
+            1123.0,
+            220.0,
+            664.0,
+            944.0,
+            1088.0
+          ]
+        },
+        {
+          "query": "jugadores celebrando juntos en el campo",
+          "events": [
+            [
+              94,
+              105
+            ],
+            [
+              1100,
+              1120
+            ]
+          ],
+          "hits": 0,
+          "precision_at_5": 0.0,
+          "event_recall_at_5": 0.0,
+          "reciprocal_rank": 0.0,
+          "result_timestamps": [
+            1002.0,
+            664.0,
+            751.0,
+            1011.0,
+            1088.0
+          ]
+        },
+        {
+          "query": "personas abrazándose en el campo",
+          "events": [
+            [
+              842,
+              855
+            ]
+          ],
+          "hits": 0,
+          "precision_at_5": 0.0,
+          "event_recall_at_5": 0.0,
+          "reciprocal_rank": 0.0,
+          "result_timestamps": [
+            25.0,
+            1123.0,
+            0.0,
+            664.0,
+            1002.0
+          ]
+        },
+        {
+          "query": "equipo reunido en el podio de campeón",
+          "events": [
+            [
+              978,
+              990
+            ],
+            [
+              1100,
+              1120
+            ]
+          ],
+          "hits": 0,
+          "precision_at_5": 0.0,
+          "event_recall_at_5": 0.0,
+          "reciprocal_rank": 0.0,
+          "result_timestamps": [
+            1011.0,
+            1002.0,
+            751.0,
+            197.0,
+            1088.0
+          ]
+        },
+        {
+          "query": "dos presentadores sentados en un estudio de televisión",
+          "events": [
+            [
+              530,
+              592
+            ],
+            [
+              1118,
+              1130
+            ]
+          ],
+          "hits": 1,
+          "precision_at_5": 0.2,
+          "event_recall_at_5": 0.5,
+          "reciprocal_rank": 1.0,
+          "result_timestamps": [
+            1123.0,
+            220.0,
+            25.0,
+            197.0,
+            0.0
+          ]
+        },
+        {
+          "query": "tabla de posiciones en pantalla entre dos presentadores",
+          "events": [
+            [
+              214,
+              226
+            ]
+          ],
+          "hits": 1,
+          "precision_at_5": 0.2,
+          "event_recall_at_5": 1.0,
+          "reciprocal_rank": 1.0,
+          "result_timestamps": [
+            220.0,
+            1123.0,
+            197.0,
+            751.0,
+            1011.0
+          ]
+        }
+      ]
+    },
+    "complete": {
+      "precision_at_5": 0.1556,
+      "event_recall_at_5": 0.5278,
+      "mrr": 0.3833,
+      "average_search_seconds": 0.0023,
+      "queries": [
+        {
+          "query": "persona sosteniendo un trofeo",
+          "events": [
+            [
+              745,
+              758
+            ],
+            [
+              800,
+              812
+            ],
+            [
+              961,
+              973
+            ],
+            [
+              1100,
+              1120
+            ]
+          ],
+          "hits": 1,
+          "precision_at_5": 0.2,
+          "event_recall_at_5": 0.25,
+          "reciprocal_rank": 0.3333333333333333,
+          "result_timestamps": [
+            127.0,
+            179.9,
+            1116.0,
+            655.5,
+            646.8
+          ]
+        },
+        {
+          "query": "equipo levantando una copa grande",
+          "events": [
+            [
+              961,
+              973
+            ],
+            [
+              1100,
+              1120
+            ]
+          ],
+          "hits": 1,
+          "precision_at_5": 0.2,
+          "event_recall_at_5": 0.5,
+          "reciprocal_rank": 0.2,
+          "result_timestamps": [
+            1094.0,
+            1011.0,
+            914.0,
+            655.5,
+            1111.0
+          ]
+        },
+        {
+          "query": "bengalas rojas y humo en la tribuna",
+          "events": [
+            [
+              125,
+              160
+            ]
+          ],
+          "hits": 1,
+          "precision_at_5": 0.2,
+          "event_recall_at_5": 1.0,
+          "reciprocal_rank": 1.0,
+          "result_timestamps": [
+            131.0,
+            266.0,
+            333.0,
+            688.9,
+            1013.9
+          ]
+        },
+        {
+          "query": "persona escribiendo sobre un papel",
+          "events": [
+            [
+              576,
+              592
+            ]
+          ],
+          "hits": 1,
+          "precision_at_5": 0.2,
+          "event_recall_at_5": 1.0,
+          "reciprocal_rank": 0.3333333333333333,
+          "result_timestamps": [
+            658.0,
+            136.0,
+            584.0,
+            178.0,
+            149.0
+          ]
+        },
+        {
+          "query": "jugadores celebrando juntos en el campo",
+          "events": [
+            [
+              94,
+              105
+            ],
+            [
+              1100,
+              1120
+            ]
+          ],
+          "hits": 0,
+          "precision_at_5": 0.0,
+          "event_recall_at_5": 0.0,
+          "reciprocal_rank": 0.0,
+          "result_timestamps": [
+            127.0,
+            183.0,
+            1011.0,
+            678.4,
+            904.0
+          ]
+        },
+        {
+          "query": "personas abrazándose en el campo",
+          "events": [
+            [
+              842,
+              855
+            ]
+          ],
+          "hits": 1,
+          "precision_at_5": 0.2,
+          "event_recall_at_5": 1.0,
+          "reciprocal_rank": 0.25,
+          "result_timestamps": [
+            127.0,
+            178.0,
+            1011.0,
+            848.0,
+            588.8
+          ]
+        },
+        {
+          "query": "equipo reunido en el podio de campeón",
+          "events": [
+            [
+              978,
+              990
+            ],
+            [
+              1100,
+              1120
+            ]
+          ],
+          "hits": 1,
+          "precision_at_5": 0.2,
+          "event_recall_at_5": 0.5,
+          "reciprocal_rank": 0.3333333333333333,
+          "result_timestamps": [
+            1011.0,
+            179.9,
+            984.0,
+            655.5,
+            1061.0
+          ]
+        },
+        {
+          "query": "dos presentadores sentados en un estudio de televisión",
+          "events": [
+            [
+              530,
+              592
+            ],
+            [
+              1118,
+              1130
+            ]
+          ],
+          "hits": 1,
+          "precision_at_5": 0.2,
+          "event_recall_at_5": 0.5,
+          "reciprocal_rank": 1.0,
+          "result_timestamps": [
+            1123.0,
+            452.0,
+            136.0,
+            886.0,
+            220.0
+          ]
+        },
+        {
+          "query": "tabla de posiciones en pantalla entre dos presentadores",
+          "events": [
+            [
+              214,
+              226
+            ]
+          ],
+          "hits": 0,
+          "precision_at_5": 0.0,
+          "event_recall_at_5": 0.0,
+          "reciprocal_rank": 0.0,
+          "result_timestamps": [
+            757.0,
+            881.0,
+            658.0,
+            333.0,
+            857.0
+          ]
+        }
+      ]
+    }
+  }
+}

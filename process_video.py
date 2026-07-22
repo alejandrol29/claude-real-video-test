@@ -5,6 +5,8 @@ from urllib.parse import urlparse
 
 from app.embed import DEFAULT_COLLECTION, DEFAULT_MODEL
 from app.pipeline import process_source
+from app.siglip import DEFAULT_SIGLIP_COLLECTION, DEFAULT_SIGLIP_MODEL
+from app.vision import FAST_VISION_MODEL
 
 
 def default_video_id(source: str) -> str:
@@ -25,7 +27,38 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument("--video-id")
     parser.add_argument("--output-dir")
     parser.add_argument("--chroma")
-    parser.add_argument("--vision-model", default="qwen2.5vl:3b")
+    parser.add_argument("--vision-model", default=FAST_VISION_MODEL)
+    parser.add_argument(
+        "--visual-frames",
+        type=int,
+        default=None,
+        help=(
+            "Cantidad fija de keyframes para el modelo visual. Si se omite, "
+            "se calcula según la duración del video."
+        ),
+    )
+    parser.add_argument(
+        "--visual-interval",
+        type=float,
+        default=90.0,
+        help="Cobertura visual automática aproximada en segundos.",
+    )
+    parser.add_argument(
+        "--no-ocr",
+        action="store_false",
+        dest="run_ocr",
+        help="Desactiva OCR sobre el conjunto completo de frames.",
+    )
+    parser.add_argument("--ocr-min-score", type=float, default=0.55)
+    parser.add_argument(
+        "--no-siglip",
+        action="store_false",
+        dest="run_siglip",
+        help="Usa muestreo temporal y no crea el índice visual SigLIP.",
+    )
+    parser.add_argument("--siglip-model", default=DEFAULT_SIGLIP_MODEL)
+    parser.add_argument("--siglip-collection", default=DEFAULT_SIGLIP_COLLECTION)
+    parser.add_argument("--siglip-batch-size", type=int, default=16)
     parser.add_argument("--embedding-model", default=DEFAULT_MODEL)
     parser.add_argument("--collection", default=DEFAULT_COLLECTION)
     parser.add_argument("--batch-size", type=int, default=32)
@@ -80,6 +113,14 @@ def main() -> None:
         replace=args.replace,
         limit=args.limit,
         frame=args.frame,
+        visual_frames=args.visual_frames,
+        visual_interval=args.visual_interval,
+        run_ocr=args.run_ocr,
+        ocr_minimum_score=args.ocr_min_score,
+        run_siglip=args.run_siglip,
+        siglip_model=args.siglip_model,
+        siglip_collection=args.siglip_collection,
+        siglip_batch_size=args.siglip_batch_size,
         scene=args.scene,
         fps_floor=args.fps_floor,
         max_frames=args.max_frames,

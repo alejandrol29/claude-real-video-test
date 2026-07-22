@@ -12,6 +12,13 @@ DEFAULT_MODEL = "BAAI/bge-m3"
 DEFAULT_COLLECTION = "video_segments"
 
 
+def load_embedding_model(model_name: str = DEFAULT_MODEL) -> SentenceTransformer:
+    try:
+        return SentenceTransformer(model_name, local_files_only=True)
+    except OSError:
+        return SentenceTransformer(model_name)
+
+
 def load_segments(path: Path) -> list[dict[str, Any]]:
     if not path.exists():
         raise FileNotFoundError(f"No existe el archivo: {path}")
@@ -73,6 +80,21 @@ def normalize_number(value: Any, default: float = 0.0) -> float:
     try:
         if value is None:
             return default
+
+        if isinstance(value, str) and ":" in value:
+            parts = value.split(":")
+
+            if len(parts) == 2:
+                minutes, seconds = parts
+                return int(minutes) * 60 + float(seconds)
+
+            if len(parts) == 3:
+                hours, minutes, seconds = parts
+                return (
+                    int(hours) * 3600
+                    + int(minutes) * 60
+                    + float(seconds)
+                )
 
         return float(value)
     except (TypeError, ValueError):
@@ -156,6 +178,7 @@ def index_segments(
     collection_name: str = DEFAULT_COLLECTION,
     batch_size: int = 32,
     replace: bool = False,
+    embedding_model: SentenceTransformer | None = None,
 ) -> dict[str, Any]:
     """Embed a segment JSON file and upsert it into ChromaDB."""
     segments_path = Path(segments_path)
@@ -192,7 +215,7 @@ def index_segments(
     print()
     print("Cargando modelo de embeddings...")
     model_load_start = time.perf_counter()
-    embedding_model = SentenceTransformer(model_name)
+    embedding_model = embedding_model or load_embedding_model(model_name)
     model_load_time = time.perf_counter() - model_load_start
     print(f"Modelo cargado en : {model_load_time:.3f} s")
     print()

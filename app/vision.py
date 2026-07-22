@@ -6,102 +6,56 @@ from pathlib import Path
 from ollama import chat
 
 
+FAST_VISION_MODEL = "qwen3-vl:2b-instruct"
+
+ANALYSIS_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "scene": {"type": "string"},
+        "setting": {"type": "string"},
+        "people": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "role": {"type": "string"},
+                    "description": {"type": "string"},
+                },
+                "required": ["role", "description"],
+            },
+        },
+        "objects": {"type": "array", "items": {"type": "string"}},
+        "actions": {"type": "array", "items": {"type": "string"}},
+        "visible_text": {"type": "array", "items": {"type": "string"}},
+        "organizations": {"type": "array", "items": {"type": "string"}},
+        "topics": {"type": "array", "items": {"type": "string"}},
+        "visual_elements": {
+            "type": "array",
+            "items": {"type": "string"},
+        },
+        "description": {"type": "string"},
+    },
+    "required": [
+        "scene",
+        "setting",
+        "people",
+        "objects",
+        "actions",
+        "visible_text",
+        "organizations",
+        "topics",
+        "visual_elements",
+        "description",
+    ],
+}
+
 PROMPT = """
-Eres un sistema de indexación semántica de videos.
-
-Analiza la imagen y responde EXCLUSIVAMENTE con un objeto JSON válido.
-
-No escribas explicaciones.
-No escribas texto fuera del JSON.
-No uses bloques Markdown.
-No uses ```json.
-Todos los valores deben estar en español.
-
-Usa exactamente esta estructura:
-
-{
-  "scene": "",
-  "setting": "",
-  "people": [
-    {
-      "role": "",
-      "description": ""
-    }
-  ],
-  "objects": [],
-  "actions": [],
-  "visible_text": [],
-  "organizations": [],
-  "topics": [],
-  "visual_elements": [],
-  "description": ""
-}
-
-Reglas generales:
-
-- Describe únicamente información visible u objetivamente inferible.
-- No inventes nombres, identidades, lugares ni hechos.
-- No identifiques personas por su nombre.
-- Si un rol es evidente, utilízalo: presentador, periodista, entrevistador, entrevistado, jugador, árbitro, médico, docente, músico, policía, funcionario, trabajador, cliente, etc.
-- Si el rol no puede determinarse, utiliza "persona".
-- Si una lista no tiene elementos, devuelve [].
-- No devuelvas objetos dentro de las listas. Las listas deben contener solamente textos.
-- No escribas valores en inglés.
-- No utilices expresiones como "posiblemente", "parece ser" o "podría ser".
-- No describas colores de ropa salvo que ayuden a distinguir equipos, uniformes o elementos relevantes.
-
-Definición de los campos:
-
-- "scene": tipo general de escena, por ejemplo transmisión televisiva, entrevista, reunión, paisaje, evento, clase, fábrica, actuación, partido, publicidad.
-- "setting": lugar o entorno observable.
-- "people": personas visibles, con su rol y una descripción breve.
-- "objects": objetos relevantes para buscar posteriormente la escena.
-- "actions": acciones observables.
-- "visible_text": texto realmente visible en la imagen.
-- "organizations": marcas, empresas, instituciones, canales, equipos u organizaciones visibles.
-- "topics": temas generales de la escena.
-- "visual_elements": elementos gráficos como logotipos, códigos QR, banners, subtítulos, marcadores, mapas, gráficos o pantalla dividida.
-- "description": resumen breve, objetivo y completo de la imagen.
-
-Ejemplo de formato válido:
-
-{
-  "scene": "Transmisión televisiva",
-  "setting": "Estudio de televisión con una pantalla de fondo",
-  "people": [
-    {
-      "role": "presentador",
-      "description": "Persona hablando frente a cámara"
-    }
-  ],
-  "objects": [
-    "micrófono",
-    "pantalla"
-  ],
-  "actions": [
-    "hablar frente a cámara"
-  ],
-  "visible_text": [
-    "Noticias"
-  ],
-  "organizations": [
-    "Canal de televisión"
-  ],
-  "topics": [
-    "informativo",
-    "actualidad"
-  ],
-  "visual_elements": [
-    "logotipo",
-    "banner",
-    "pantalla de fondo"
-  ],
-  "description": "Programa informativo con un presentador hablando frente a cámara."
-}
-
-El ejemplo solo muestra el formato. Adapta todos los valores a la imagen real.
-
-Responde únicamente con el JSON.
+Describe esta imagen para indexación y búsqueda semántica de video.
+Responde en español y solo con el JSON solicitado. Incluye únicamente hechos
+visibles: escena, entorno, personas y roles, objetos, acciones, texto visible
+literal, organizaciones o marcas, temas, elementos gráficos y una descripción
+breve. No inventes identidades ni hechos. Usa listas vacías cuando corresponda.
+Prioriza detalles que permitan encontrar posteriormente este momento del video.
 """.strip()
 
 def describe_frame(
@@ -121,7 +75,10 @@ def describe_frame(
         ],
         options={
             "temperature": 0,
+            "num_ctx": 4096,
         },
+        format=ANALYSIS_SCHEMA,
+        keep_alive="30m",
     )
 
     processing_time = time.perf_counter() - start_time
@@ -216,6 +173,66 @@ def save_json(path: Path, data: object) -> None:
         json.dump(data, file, indent=2, ensure_ascii=False)
 
 
+def build_index_text(analysis: dict[str, object]) -> str:
+    """Build the stable searchable text used by visual segment JSON files."""
+    people_text = []
+    for person in analysis["people"]:
+        role = person.get("role", "").strip()
+        person_description = person.get("description", "").strip()
+        if role and person_description:
+            people_text.append(f"{role}: {person_description}")
+        elif role:
+            people_text.append(role)
+        elif person_description:
+            people_text.append(person_description)
+
+    text_parts = []
+    for field_name, label in (("scene", "Escena"), ("setting", "Entorno")):
+        if analysis[field_name]:
+            text_parts.append(f"{label}: {analysis[field_name]}.")
+
+    if people_text:
+        text_parts.append(f"Personas y roles: {', '.join(people_text)}.")
+
+    list_fields = (
+        ("objects", "Objetos"),
+        ("actions", "Acciones"),
+        ("visible_text", "Texto visible"),
+        ("organizations", "Organizaciones y marcas"),
+        ("topics", "Temas"),
+        ("visual_elements", "Elementos visuales"),
+    )
+    for field_name, label in list_fields:
+        if analysis[field_name]:
+            text_parts.append(f"{label}: {', '.join(analysis[field_name])}.")
+
+    if analysis["description"]:
+        text_parts.append(f"Descripción: {analysis['description']}")
+    return " ".join(text_parts).strip()
+
+
+def sample_frames_evenly(
+    frames: list[dict[str, object]],
+    sample_size: int,
+) -> list[dict[str, object]]:
+    """Sample the whole timeline while preserving the first and last frame."""
+    if sample_size <= 0:
+        raise ValueError("La cantidad de frames visuales debe ser mayor que cero.")
+
+    if sample_size >= len(frames):
+        return frames
+
+    if sample_size == 1:
+        return [frames[len(frames) // 2]]
+
+    last_index = len(frames) - 1
+    indices = {
+        round(position * last_index / (sample_size - 1))
+        for position in range(sample_size)
+    }
+    return [frames[index] for index in sorted(indices)]
+
+
 def process_frames(
     frames_json_path: Path,
     frames_dir: Path,
@@ -223,6 +240,8 @@ def process_frames(
     model: str = "qwen2.5vl:3b",
     limit: int | None = None,
     frame: int | None = None,
+    sample_limit: int | None = None,
+    selected_files: list[str] | None = None,
 ) -> dict[str, object]:
     """Analyze video frames and write the existing visual segment JSON files."""
     frames_json_path = Path(frames_json_path)
@@ -262,6 +281,16 @@ def process_frames(
             raise ValueError("--limit debe ser mayor que cero.")
 
         frames = frames[:limit]
+    elif selected_files is not None:
+        selected = set(selected_files)
+        frames = [item for item in frames if item.get("file") in selected]
+
+        if len(frames) != len(selected):
+            found = {str(item.get("file")) for item in frames}
+            missing = sorted(selected - found)
+            raise ValueError(f"No se encontraron los frames seleccionados: {missing}")
+    elif sample_limit is not None:
+        frames = sample_frames_evenly(frames, sample_limit)
 
     total_frames = len(frames)
 
@@ -300,47 +329,7 @@ def process_frames(
         try:
             analysis, processing_time = describe_frame(image_path, model)
             processing_times.append(processing_time)
-            people_text = []
-
-            for person in analysis["people"]:
-                role = person.get("role", "").strip()
-                person_description = person.get("description", "").strip()
-
-                if role and person_description:
-                    people_text.append(f"{role}: {person_description}")
-                elif role:
-                    people_text.append(role)
-                elif person_description:
-                    people_text.append(person_description)
-
-            text_parts = []
-            text_fields = (
-                ("scene", "Escena"),
-                ("setting", "Entorno"),
-            )
-            for field_name, label in text_fields:
-                if analysis[field_name]:
-                    text_parts.append(f"{label}: {analysis[field_name]}.")
-
-            if people_text:
-                text_parts.append(f"Personas y roles: {', '.join(people_text)}.")
-
-            list_fields = (
-                ("objects", "Objetos"),
-                ("actions", "Acciones"),
-                ("visible_text", "Texto visible"),
-                ("organizations", "Organizaciones y marcas"),
-                ("topics", "Temas"),
-                ("visual_elements", "Elementos visuales"),
-            )
-            for field_name, label in list_fields:
-                if analysis[field_name]:
-                    text_parts.append(f"{label}: {', '.join(analysis[field_name])}.")
-
-            if analysis["description"]:
-                text_parts.append(f"Descripción: {analysis['description']}")
-
-            index_text = " ".join(text_parts).strip()
+            index_text = build_index_text(analysis)
             if not index_text:
                 raise ValueError("El modelo devolvió un análisis vacío.")
 

@@ -1,0 +1,38 @@
+[
+  {
+    "query": "persona sosteniendo un trofeo",
+    "events": [[745, 758], [800, 812], [961, 973], [1100, 1120]]
+  },
+  {
+    "query": "equipo levantando una copa grande",
+    "events": [[961, 973], [1100, 1120]]
+  },
+  {
+    "query": "bengalas rojas y humo en la tribuna",
+    "events": [[125, 160]]
+  },
+  {
+    "query": "persona escribiendo sobre un papel",
+    "events": [[576, 592]]
+  },
+  {
+    "query": "jugadores celebrando juntos en el campo",
+    "events": [[94, 105], [1100, 1120]]
+  },
+  {
+    "query": "personas abrazándose en el campo",
+    "events": [[842, 855]]
+  },
+  {
+    "query": "equipo reunido en el podio de campeón",
+    "events": [[978, 990], [1100, 1120]]
+  },
+  {
+    "query": "dos presentadores sentados en un estudio de televisión",
+    "events": [[530, 592], [1118, 1130]]
+  },
+  {
+    "query": "tabla de posiciones en pantalla entre dos presentadores",
+    "events": [[214, 226]]
+  }
+]
